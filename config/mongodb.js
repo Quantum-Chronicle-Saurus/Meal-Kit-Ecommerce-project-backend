@@ -18,10 +18,7 @@ const connectDB = async () => {
     });
 
     // Connect to MongoDB
-    await mongoose.connect(`${process.env.MONGODB_URI}/backendtest`, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(`${process.env.MONGODB_URI}/backendtest`);
 
     console.log("Database connection successful 🌟");
   } catch (error) {
