@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/mongodb.js";
 import connectCloudinary from "./config/cloudinary.js";
+import userRouter from "./routes/userRoute.js";
+import productRouter from "./routes/productRoute.js";
 
 //Initialize
 dotenv.config();
@@ -39,10 +41,10 @@ app.use(
 //when testing with api, put/api infront
 app.use("/user", userRouter);
 app.use("/product", productRouter);
-app.use("/cart", cartRouter);
-app.use("/order", orderRouter);
+// app.use("/cart", cartRouter);
+// app.use("/order", orderRouter);
 
-//Checking Ecpress wheter it's working or not
+//Checking Express wheter it's working or not
 const port = process.env.PORT || 4000;
 app.get("/", (req, res) => {
   res.send("API is working");
