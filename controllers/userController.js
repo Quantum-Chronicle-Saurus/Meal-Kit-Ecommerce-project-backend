@@ -116,4 +116,25 @@ const adminLogin = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser, adminLogin };
+// Get all users with optional pagination
+const getUser = async (req, res) => {
+  try {
+    const { limit = 10, page = 1 } = req.query;
+    const skip = (page - 1) * limit;
+    const userData = await userModel
+      .find({})
+      .limit(Number(limit))
+      .skip(Number(skip));
+
+    res.status(200).json({
+      success: true,
+      count: userData.length,
+      data: userData,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+export { registerUser, loginUser, adminLogin, getUser };
