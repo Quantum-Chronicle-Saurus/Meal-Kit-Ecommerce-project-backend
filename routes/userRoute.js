@@ -2,9 +2,9 @@ import express from "express";
 import validateRegisterInput from "../middlewares/validateRegister.js";
 import validateLoginInput from "../middlewares/validateLogin.js";
 import adminLoginLimiter from "../middlewares/adminLoginLimiter.js";
-import authAdmin from "../middlewares/adminAuth.js";
-import authUser from "../middlewares/userAuth.js";
+
 import {
+  getUser,
   registerUser,
   loginUser,
   adminLogin,
@@ -12,8 +12,11 @@ import {
 
 const userRouter = express.Router();
 
+userRouter.get("/", getUser);
 userRouter.post("/register", validateRegisterInput, registerUser);
-userRouter.post("/login", validateLoginInput, authUser, loginUser);
-userRouter.post("/admin", adminLoginLimiter, authAdmin, adminLogin);
+userRouter.post("/login", validateLoginInput, loginUser);
+
+// Admin Login Route
+userRouter.post("/admin", adminLoginLimiter, adminLogin);
 
 export default userRouter;
