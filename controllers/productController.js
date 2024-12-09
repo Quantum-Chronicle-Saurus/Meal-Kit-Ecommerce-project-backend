@@ -131,14 +131,89 @@ const listProducts = async (req, res) => {
   }
 };
 
-// function for removing product
+// Function for updating a product in the database
+const updateProduct = async (req, res) => {
+  try {
+    // แปลง ID จาก string เป็น number
+    const id = parseInt(req.params.id, 10); // แปลงเป็น Number (ฐาน 10)
+
+    // ข้อมูลที่ต้องการอัปเดต
+    const {
+      name,
+      description,
+      longDescription,
+      price,
+      category,
+      categoryGroup,
+      ingredients,
+      grossWeight,
+      nutrition,
+    } = req.body;
+
+    // สร้าง object สำหรับข้อมูลใหม่
+    const updatedData = {
+      name,
+      description,
+      longDescription,
+      price,
+      category,
+      categoryGroup,
+      ingredients,
+      grossWeight,
+      nutrition,
+    };
+
+    // ค้นหาและอัปเดตสินค้าในฐานข้อมูล
+    const updateProduct = await productModel.findByIdAndUpdate(
+      id, // ID ที่ถูกแปลงเป็นตัวเลข
+      updatedData, // ข้อมูลใหม่
+      { new: true } // ส่งคืนเอกสารที่อัปเดต
+    );
+
+    // หากไม่พบสินค้า ส่ง 404
+    if (!updateProduct) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
+    }
+
+    // ส่งคืนข้อมูลสินค้าที่อัปเดต
+    res.status(200).json({ success: true, updateProduct });
+  } catch (error) {
+    // ส่งข้อผิดพลาดในกรณีล้มเหลว
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Function to remove a product from the database
 const removeProduct = async (req, res) => {
   try {
-    await productModel.findByIdAndDelete(req.body.id);
-    res.json({ success: true, message: "Product Removed" });
+    // ดึง ID จาก req.params
+    const id = parseInt(req.params.id, 10);
+
+    // ตรวจสอบว่า ID เป็นตัวเลขที่ถูกต้อง
+    if (isNaN(id)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid Product ID" });
+    }
+
+    // ลบสินค้าโดยใช้ ID
+    const deletedProduct = await productModel.findByIdAndDelete(id);
+
+    if (!deletedProduct) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: "Product removed successfully" });
   } catch (error) {
     console.log(error);
-    res.json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -159,6 +234,7 @@ export {
   getProductId,
   addProduct,
   listProducts,
+  updateProduct,
   removeProduct,
   singleProduct,
 };
