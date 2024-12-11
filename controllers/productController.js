@@ -5,46 +5,31 @@ import { v2 as cloudinary } from "cloudinary";
 // Get all products with optional pagination
 const getProduct = async (req, res) => {
   try {
-    const { limit = 10, page = 1 } = req.query;
-    const skip = (page - 1) * limit;
-    const productData = await productModel
-      .find({})
-      .limit(Number(limit))
-      .skip(Number(skip));
+    console.log("list product");
+    const products = await productModel.find({});
 
+    if (!products.length) {
+      // กรณีไม่มีสินค้า
+      return res.status(200).json({
+        success: true,
+        message: "No products found",
+        products: [],
+      });
+    }
+
+    // กรณีดึงสินค้าสำเร็จ
     res.status(200).json({
       success: true,
-      count: productData.length,
-      data: productData,
+      products,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
-  }
-};
+    console.error("Error fetching products:", error);
 
-// Get a single product by ID
-const getProductId = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid product ID" });
-    }
-
-    const productData = await productModel.findById(id);
-    if (!productData) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Product not found" });
-    }
-
-    res.status(200).json({ success: true, data: productData });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    // ส่งข้อความผิดพลาดทั่วไป
+    res.status(500).json({
+      success: false,
+      message: "An unexpected error occurred. Please try again later.",
+    });
   }
 };
 
@@ -123,11 +108,31 @@ const addProduct = async (req, res) => {
 // function for list product
 const listProducts = async (req, res) => {
   try {
+    console.log("list product");
     const products = await productModel.find({});
-    res.json({ success: true, products });
+
+    if (!products.length) {
+      // กรณีไม่มีสินค้า
+      return res.status(200).json({
+        success: true,
+        message: "No products found",
+        products: [],
+      });
+    }
+
+    // กรณีดึงสินค้าสำเร็จ
+    res.status(200).json({
+      success: true,
+      products,
+    });
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: error.message });
+    console.error("Error fetching products:", error);
+
+    // ส่งข้อความผิดพลาดทั่วไป
+    res.status(500).json({
+      success: false,
+      message: "An unexpected error occurred. Please try again later.",
+    });
   }
 };
 
@@ -229,12 +234,4 @@ const singleProduct = async (req, res) => {
   }
 };
 
-export {
-  getProduct,
-  getProductId,
-  addProduct,
-  listProducts,
-  updateProduct,
-  removeProduct,
-  singleProduct,
-};
+export { getProduct, addProduct, updateProduct, removeProduct, singleProduct };
