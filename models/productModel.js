@@ -10,7 +10,7 @@ const productSchema = new mongoose.Schema({
   image: { type: Array, required: true },
   category: { type: String, required: true },
   categoryGroup: { type: String, required: true },
-  grossWeight: { type: String, required: true },
+  size: { type: String, required: true },
   nutrition: { type: String, require: true },
   date: { type: Number, required: true },
   ingredients: { type: String, required: false },
