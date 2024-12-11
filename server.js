@@ -7,6 +7,8 @@ import userRouter from "./routes/userRoute.js";
 import productRouter from "./routes/productRoute.js";
 import orderRouter from "./routes/orderRoute.js";
 import cartRouter from "./routes/cartRoute.js";
+import adminRouter from "./routes/adminRoute.js";
+
 //Initialize
 dotenv.config();
 const app = express();
@@ -41,6 +43,7 @@ app.use(
 
 //when testing with api, put/api infront
 app.use("/user", userRouter);
+app.use("/admin", adminRouter);
 app.use("/product", productRouter);
 app.use("/cart", cartRouter);
 app.use("/order", orderRouter);
