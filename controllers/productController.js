@@ -43,7 +43,7 @@ const addProduct = async (req, res) => {
       category,
       categoryGroup,
       ingredients,
-      grossWeight,
+      size,
       nutrition,
     } = req.body;
 
@@ -88,7 +88,7 @@ const addProduct = async (req, res) => {
       category,
       categoryGroup,
       ingredients,
-      grossWeight,
+      size,
       image: imagesUrl, // URL ที่ได้จาก Cloudinary
       nutrition,
       date: Date.now(),
@@ -151,7 +151,7 @@ const updateProduct = async (req, res) => {
       category,
       categoryGroup,
       ingredients,
-      grossWeight,
+      size,
       nutrition,
     } = req.body;
 
@@ -164,7 +164,7 @@ const updateProduct = async (req, res) => {
       category,
       categoryGroup,
       ingredients,
-      grossWeight,
+      size,
       nutrition,
     };
 
@@ -225,8 +225,8 @@ const removeProduct = async (req, res) => {
 // function for single product info
 const singleProduct = async (req, res) => {
   try {
-    const { productId } = req.body;
-    const product = await productModel.findById(productId);
+    const { _id } = req.body;
+    const product = await productModel.findById(_id);
     res.json({ success: true, product });
   } catch (error) {
     console.log(error);
