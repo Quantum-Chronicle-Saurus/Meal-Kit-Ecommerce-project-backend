@@ -23,6 +23,7 @@ const allowedOrigins = [
   "https://jsd-user.vercel.app", //user
   "http://localhost:5172", // For local development
   "http://localhost:5173", // For local development
+  "http://localhost:5174", // For local development
 ];
 // Configure CORS
 app.use(
