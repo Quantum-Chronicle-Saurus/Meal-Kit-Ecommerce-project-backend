@@ -12,7 +12,7 @@ import {
 const productRouter = express.Router();
 
 // Fetch all products
-productRouter.get("/", adminAuth, getProduct);
+productRouter.get("/", getProduct);
 
 // Add a new product (requires admin authentication and image upload)
 productRouter.post(

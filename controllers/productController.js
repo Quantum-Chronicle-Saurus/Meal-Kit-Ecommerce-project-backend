@@ -1,5 +1,4 @@
 import productModel from "../models/productModel.js";
-import mongoose from "mongoose";
 import { v2 as cloudinary } from "cloudinary";
 
 // Get all products with optional pagination
@@ -102,37 +101,6 @@ const addProduct = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-// function for list product
-const listProducts = async (req, res) => {
-  try {
-    console.log("list product");
-    const products = await productModel.find({});
-
-    if (!products.length) {
-      // กรณีไม่มีสินค้า
-      return res.status(200).json({
-        success: true,
-        message: "No products found",
-        products: [],
-      });
-    }
-
-    // กรณีดึงสินค้าสำเร็จ
-    res.status(200).json({
-      success: true,
-      products,
-    });
-  } catch (error) {
-    console.error("Error fetching products:", error);
-
-    // ส่งข้อความผิดพลาดทั่วไป
-    res.status(500).json({
-      success: false,
-      message: "An unexpected error occurred. Please try again later.",
-    });
   }
 };
 
