@@ -55,8 +55,8 @@ const addProduct = async (req, res) => {
     }
 
     // Increment _id using MongoDB update operation
-    const lastProduct = await productModel.findOne().sort({ _id: -1 }); //หา _id ก่อนหน้า
-    const nextId = lastProduct ? lastProduct._id + 1 : 1; // ถ้าเจอ lastproduct ให้เอา lastProduct._id +1 เพื่อแทนค่าตัวล่าสุด
+    const lastProduct = await productModel.findOne().sort({ _id: -1 });
+    const nextId = lastProduct ? lastProduct._id + 1 : 1;
 
     // ตรวจสอบว่า image ถูกส่งมาหรือไม่
     const uploadedImage = req.files?.image || [];
@@ -67,13 +67,13 @@ const addProduct = async (req, res) => {
       });
     }
 
-    // อัปโหลด image ไปยัง Cloudinary
-    const imagesUrl = await Promise.all(
+    // อัปโหลด image ไปยัง Cloudinary และเก็บ public_id
+    const images = await Promise.all(
       uploadedImage.map(async (item) => {
         const result = await cloudinary.uploader.upload(item.path, {
           resource_type: "image",
         });
-        return result.secure_url;
+        return { url: result.secure_url, publicId: result.public_id };
       })
     );
 
@@ -88,7 +88,8 @@ const addProduct = async (req, res) => {
       categoryGroup,
       ingredients,
       size,
-      image: imagesUrl, // URL ที่ได้จาก Cloudinary
+      image: images.map((img) => img.url), // เก็บเฉพาะ URL ของรูปภาพ
+      imagePublicId: images.map((img) => img.publicId), // เก็บ public_id
       nutrition,
       date: Date.now(),
     };
@@ -107,8 +108,7 @@ const addProduct = async (req, res) => {
 // Function for updating a product in the database
 const updateProduct = async (req, res) => {
   try {
-    // แปลง ID จาก string เป็น number
-    const id = parseInt(req.params.id, 10); // แปลงเป็น Number (ฐาน 10)
+    const id = parseInt(req.params.id, 10); // แปลง ID จาก params
 
     // ข้อมูลที่ต้องการอัปเดต
     const {
@@ -123,12 +123,13 @@ const updateProduct = async (req, res) => {
       nutrition,
     } = req.body;
 
-    // สร้าง object สำหรับข้อมูลใหม่
+    // ตรวจสอบว่ามีการอัปโหลดรูปภาพใหม่หรือไม่
+    const uploadedImage = req.files?.image || [];
     const updatedData = {
       name,
       description,
       longDescription,
-      price,
+      price: Number(price),
       category,
       categoryGroup,
       ingredients,
@@ -136,24 +137,50 @@ const updateProduct = async (req, res) => {
       nutrition,
     };
 
-    // ค้นหาและอัปเดตสินค้าในฐานข้อมูล
-    const updateProduct = await productModel.findByIdAndUpdate(
-      id, // ID ที่ถูกแปลงเป็นตัวเลข
-      updatedData, // ข้อมูลใหม่
-      { new: true } // ส่งคืนเอกสารที่อัปเดต
-    );
-
-    // หากไม่พบสินค้า ส่ง 404
-    if (!updateProduct) {
+    // ดึงข้อมูลสินค้าเดิม
+    const existingProduct = await productModel.findById(id);
+    if (!existingProduct) {
       return res
         .status(404)
         .json({ success: false, message: "Product not found" });
     }
 
-    // ส่งคืนข้อมูลสินค้าที่อัปเดต
-    res.status(200).json({ success: true, updateProduct });
+    // หากมีรูปภาพใหม่ ให้ลบรูปเก่าออกจาก Cloudinary และอัปเดตรูปใหม่
+    if (uploadedImage.length > 0) {
+      // ลบรูปภาพเก่าออกจาก Cloudinary
+      await Promise.all(
+        existingProduct.imagePublicId.map(async (publicId) => {
+          await cloudinary.uploader.destroy(publicId);
+        })
+      );
+
+      // อัปโหลดรูปภาพใหม่ไปยัง Cloudinary
+      const imagesUrl = await Promise.all(
+        uploadedImage.map(async (item) => {
+          const result = await cloudinary.uploader.upload(item.path, {
+            resource_type: "image",
+          });
+          return {
+            url: result.secure_url,
+            publicId: result.public_id,
+          };
+        })
+      );
+
+      // อัปเดตข้อมูลรูปภาพใหม่
+      updatedData.image = imagesUrl.map((img) => img.url);
+      updatedData.imagePublicId = imagesUrl.map((img) => img.publicId);
+    }
+
+    // ค้นหาและอัปเดตสินค้าในฐานข้อมูล
+    const updatedProduct = await productModel.findByIdAndUpdate(
+      id,
+      updatedData,
+      { new: true }
+    );
+
+    res.status(200).json({ success: true, product: updatedProduct });
   } catch (error) {
-    // ส่งข้อผิดพลาดในกรณีล้มเหลว
     console.log(error);
     res.status(500).json({ success: false, message: error.message });
   }
@@ -162,31 +189,36 @@ const updateProduct = async (req, res) => {
 // Function to remove a product from the database
 const removeProduct = async (req, res) => {
   try {
-    // ดึง ID จาก req.params
-    const id = parseInt(req.params.id, 10);
+    const id = req.params.id;
 
-    // ตรวจสอบว่า ID เป็นตัวเลขที่ถูกต้อง
-    if (isNaN(id)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid Product ID" });
+    // ค้นหาสินค้าที่จะลบ
+    const product = await productModel.findById(id);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
     }
 
-    // ลบสินค้าโดยใช้ ID
-    const deletedProduct = await productModel.findByIdAndDelete(id);
-
-    if (!deletedProduct) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Product not found" });
+    // ลบรูปภาพใน Cloudinary
+    const imagePublicIds = product.imagePublicId || [];
+    for (const publicId of imagePublicIds) {
+      await cloudinary.uploader.destroy(publicId);
     }
 
-    res
-      .status(200)
-      .json({ success: true, message: "Product removed successfully" });
+    // ลบสินค้าจากฐานข้อมูล
+    await productModel.findByIdAndDelete(id);
+
+    res.status(200).json({
+      success: true,
+      message: "Product removed successfully",
+    });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };
 
