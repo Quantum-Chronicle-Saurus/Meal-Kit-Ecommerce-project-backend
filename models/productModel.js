@@ -7,14 +7,14 @@ const productSchema = new mongoose.Schema({
   longDescription: { type: String, required: true },
   ingredients: { type: String, required: true },
   price: { type: Number, required: true },
-  image: { type: Array, required: true },
+  image: { type: Array, required: true }, // เก็บ URLs ของรูปภาพ
+  imagePublicId: { type: Array, required: true }, // เก็บ public_id ของรูปภาพ
   storageInstructions: { type: String, required: false },
   category: { type: String, required: true },
   categoryGroup: { type: String, required: true },
   size: { type: String, required: true },
-  nutrition: { type: String, require: true },
+  nutrition: { type: String, required: true },
   date: { type: Number, required: true },
-  ingredients: { type: String, required: false },
 });
 
 const productModel =
