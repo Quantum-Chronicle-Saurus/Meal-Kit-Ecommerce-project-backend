@@ -4,7 +4,7 @@ import { v2 as cloudinary } from "cloudinary";
 // Get all products with optional pagination
 const getProduct = async (req, res) => {
   try {
-    console.log("list product");
+    // console.log("list product");
     const products = await productModel.find({});
 
     if (!products.length) {
@@ -111,30 +111,24 @@ const updateProduct = async (req, res) => {
     const id = parseInt(req.params.id, 10); // แปลง ID จาก params
 
     // ข้อมูลที่ต้องการอัปเดต
-    const {
-      name,
-      description,
-      longDescription,
-      price,
-      category,
-      categoryGroup,
-      ingredients,
-      size,
-      nutrition,
-    } = req.body;
+    const { name, price, category, categoryGroup } = req.body;
+    console.log(req.body);
+    console.log(id);
+    // ตรวจสอบการแปลงราคาให้เป็นตัวเลขที่ถูกต้อง
+    const priceValue = Number(price);
+    if (isNaN(priceValue)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid price value" });
+    }
 
     // ตรวจสอบว่ามีการอัปโหลดรูปภาพใหม่หรือไม่
     const uploadedImage = req.files?.image || [];
     const updatedData = {
       name,
-      description,
-      longDescription,
-      price: Number(price),
+      price: priceValue,
       category,
       categoryGroup,
-      ingredients,
-      size,
-      nutrition,
     };
 
     // ดึงข้อมูลสินค้าเดิม
@@ -170,6 +164,10 @@ const updateProduct = async (req, res) => {
       // อัปเดตข้อมูลรูปภาพใหม่
       updatedData.image = imagesUrl.map((img) => img.url);
       updatedData.imagePublicId = imagesUrl.map((img) => img.publicId);
+    } else {
+      // หากไม่มีการอัปโหลดรูปภาพใหม่ ให้เก็บรูปภาพเดิมไว้
+      updatedData.image = existingProduct.image;
+      updatedData.imagePublicId = existingProduct.imagePublicId;
     }
 
     // ค้นหาและอัปเดตสินค้าในฐานข้อมูล
