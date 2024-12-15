@@ -76,6 +76,7 @@ const loginUser = async (req, res) => {
 // Callback function for /admin path
 const adminLogin = async (req, res) => {
   try {
+    console.log(req);
     const { email, password } = req.body;
 
     // ตรวจสอบว่า ADMIN_EMAIL และ ADMIN_PASSWORD ถูกตั้งค่าใน .env
