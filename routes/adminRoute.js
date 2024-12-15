@@ -1,7 +1,7 @@
 import express from "express";
 import adminLoginLimiter from "../middlewares/adminLoginLimiter.js";
 import authAdmin from "../middlewares/adminAuth.js";
-import { adminLogin } from "../controllers/userController.js";
+import { adminLogin, getUserById } from "../controllers/userController.js";
 
 const adminRouter = express.Router();
 
@@ -15,5 +15,7 @@ adminRouter.get("/dashboard", authAdmin, (req, res) => {
     message: "Welcome to the admin dashboard",
   });
 });
+
+adminRouter.post("/getUserById", authAdmin, getUserById); //api หา userId จากเส้นนี้
 
 export default adminRouter;

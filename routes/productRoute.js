@@ -29,6 +29,11 @@ productRouter.delete("/:id", adminAuth, removeProduct);
 productRouter.post("/single", singleProduct);
 
 // Update a product (requires admin authentication, ID passed in URL)
-productRouter.put("/:id", adminAuth, updateProduct);
+productRouter.put(
+  "/:id",
+  adminAuth,
+  upload.fields([{ name: "image", maxCount: 1 }]),
+  updateProduct
+);
 
 export default productRouter;

@@ -22,9 +22,9 @@ const authUser = async (req, res, next) => {
 
     // ตรวจสอบและถอดรหัส token
     const token_decode = jwt.verify(token, process.env.JWT_SECRET);
-
+    console.log(token_decode);
     // เพิ่มข้อมูลผู้ใช้ใน request object
-    req.user = { id: token_decode.id };
+    req.user = { id: token_decode._id };
 
     next();
   } catch (error) {

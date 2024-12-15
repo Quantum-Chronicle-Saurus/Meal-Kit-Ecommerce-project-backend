@@ -137,4 +137,23 @@ const getUser = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser, adminLogin, getUser };
+const getUserById = async (req, res) => {
+  try {
+    console.log("getUserById");
+    const { _id } = req.body;
+    const userData = await userModel.findById({ _id });
+
+    console.log(userData);
+    res.status(200).json({
+      success: true,
+      username: userData.name,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while fetching user data",
+    });
+  }
+};
+
+export { registerUser, loginUser, adminLogin, getUser, getUserById };
