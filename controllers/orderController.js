@@ -170,8 +170,8 @@ const insertOrders = async (req, res) => {
     // บันทึก product ลง MongoDB
     const order = new orderModel(orderData);
     await order.save();
-    console.log(order);
-    console.log("order_id :", order._id);
+    // console.log(order);
+    // console.log("order_id :", order._id);
     // console.log(req.user);
     // console.log(req.body);
     res.status(200).json({
@@ -183,9 +183,9 @@ const insertOrders = async (req, res) => {
 
 const getOrders = async (req, res) => {
   try {
-    console.log("getOrders");
+    // console.log("getOrders");
     const { _id } = req.body;
-    console.log("this is _id :", _id);
+    // console.log("this is _id :", _id);
 
     // ค้นหา order โดย ID
     const order = await orderModel.findById(_id);
@@ -210,8 +210,8 @@ const getOrders = async (req, res) => {
       })
     );
 
-    console.log(orderProduct);
-    console.log(order);
+    // console.log(orderProduct);
+    // console.log(order);
 
     // ส่ง response กลับ
     res

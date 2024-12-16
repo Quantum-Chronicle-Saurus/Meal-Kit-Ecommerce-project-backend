@@ -76,7 +76,7 @@ const loginUser = async (req, res) => {
 // Callback function for /admin path
 const adminLogin = async (req, res) => {
   try {
-    console.log(req);
+    // console.log(req);
     const { email, password } = req.body;
 
     // ตรวจสอบว่า ADMIN_EMAIL และ ADMIN_PASSWORD ถูกตั้งค่าใน .env
@@ -140,11 +140,11 @@ const getUser = async (req, res) => {
 
 const getUserById = async (req, res) => {
   try {
-    console.log("getUserById");
+    // console.log("getUserById");
     const { _id } = req.body;
     const userData = await userModel.findById({ _id });
 
-    console.log(userData);
+    // console.log(userData);
     res.status(200).json({
       success: true,
       username: userData.name,
