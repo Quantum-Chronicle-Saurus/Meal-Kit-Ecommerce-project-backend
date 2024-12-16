@@ -112,8 +112,8 @@ const updateProduct = async (req, res) => {
 
     // ข้อมูลที่ต้องการอัปเดต
     const { name, price, category, categoryGroup } = req.body;
-    console.log(req.body);
-    console.log(id);
+    // console.log(req.body);
+    // console.log(id);
     // ตรวจสอบการแปลงราคาให้เป็นตัวเลขที่ถูกต้อง
     const priceValue = Number(price);
     if (isNaN(priceValue)) {

@@ -20,7 +20,8 @@ app.use(express.json());
 
 const allowedOrigins = [
   "https://meal-kit-ecommerce-project-deployed-frontend.vercel.app", //client site
-  "https://test-admin-frontend-eight.vercel.app", // admin site
+  "https://test-admin-frontend-eight.vercel.app", // admin site for testing
+  "https://meal-kits-admin-vercel.vercel.app", // admin site (for presentation)
   "http://localhost:5173", // For local development
   "http://localhost:5174", // For local development
 ];
