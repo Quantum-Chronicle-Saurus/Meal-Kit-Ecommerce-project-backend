@@ -164,7 +164,7 @@ const insertOrders = async (req, res) => {
       paymentMethod,
       name,
       date: Date.now(),
-      status: "order placed",
+      status: "Order Placed",
     };
 
     // บันทึก product ลง MongoDB
